@@ -2,7 +2,7 @@ def branch = "main"
 def remote = "origin"
 def directory = "~/dumbwaysapp/wayshub-frontend"
 def server = "genabc@103.103.23.200"
-def cred = "namassh"
+def cred = "devops"
 
 pipeline{
 	agent any
@@ -24,7 +24,7 @@ pipeline{
                         sshagent([cred]){
                                 sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
                                 cd ${directory}
-				docker build -t dumbflix-fe .
+				docker build -t wayshub-fe .
                                 exit
                                 EOF"""
                                 }
@@ -35,7 +35,7 @@ pipeline{
                      steps{
                         sshagent([cred]){
                                 sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-				docker run -d -p 3000:3000 --tty --name frontend dumbflix-fe
+				docker run -d -p 3000:3000 --tty --name frontend wayshub-fe
                                 exit
                                 EOF"""
                                 }
