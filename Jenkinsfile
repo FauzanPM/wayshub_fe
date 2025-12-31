@@ -36,6 +36,18 @@ pipeline{
                         }
                 }
 
+        stage('stop & remove container') {
+            steps {
+                sshagent([cred]) {
+                    sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
+                    docker stop ${containerName} || true
+                    docker rm ${containerName} || true
+                    exit
+                    EOF"""
+                }
+            }
+        }
+
                 stage('docker run'){
                      steps{
                         sshagent([cred]){
@@ -46,5 +58,12 @@ pipeline{
                                 }
                         }
                 }
+		
+		stage('test frontend') {
+            steps {
+                sh 'wget --spider https://team.studentdumbways.my.id'
+            }
+        }
+
 	}
 }
