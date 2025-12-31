@@ -58,12 +58,6 @@ pipeline{
                                 }
                         }
                 }
-		
-#	stage('test frontend') {
-#           steps {
-#                sh 'wget --spider https://team.studentdumbways.my.id'
-#         	   }
-#        	}
 
 	}
 }
