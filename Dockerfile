@@ -1,4 +1,4 @@
-#Base Image Node 10
+#Base Image Node 10 alpine
 FROM node:10-alpine
 #Direktori Kerja
 WORKDIR /home/app
