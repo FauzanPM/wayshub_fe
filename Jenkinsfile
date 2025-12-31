@@ -6,6 +6,11 @@ def cred = "devops"
 
 pipeline{
 	agent any
+
+        triggers {
+                githubPush()
+        }
+
 	stages{
 		stage('repo pull'){
 		     steps{
