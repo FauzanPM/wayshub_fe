@@ -40,8 +40,8 @@ pipeline{
             steps {
                 sshagent([cred]) {
                     sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-                    docker stop ${containerName} || true
-                    docker rm ${containerName} || true
+                    docker stop frontend || true
+                    docker rm frontend || true
                     exit
                     EOF"""
                 }
@@ -59,11 +59,11 @@ pipeline{
                         }
                 }
 		
-		stage('test frontend') {
+	stage('test frontend') {
             steps {
                 sh 'wget --spider https://team.studentdumbways.my.id'
-            }
-        }
+         	   }
+        	}
 
 	}
 }
