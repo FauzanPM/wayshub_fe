@@ -1,0 +1,60 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY_URL: registry.fauzan.studentdumways.my.id
+  IMAGE_NAME: wayshub-fe
+  IMAGE_TAG: latest
+  APP_PORT: 3000
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Login to private registry
+      run: |
+        echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login $REGISTRY_URL \
+          -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+
+    - name: Build Docker image
+      run: |
+        docker build -t $IMAGE_NAME .
+
+    - name: Tag Docker image
+      run: |
+        docker tag $IMAGE_NAME \
+        $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
+
+    - name: Push image to registry
+      run: |
+        docker push $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
+
+    - name: Deploy to server via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          docker login $REGISTRY_URL \
+            -u "${{ secrets.REGISTRY_USER }}" \
+            -p "${{ secrets.REGISTRY_PASSWORD }}"
+
+          docker pull $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
+
+          docker stop frontend || true
+          docker rm frontend || true
+
+          docker run -d \
+            --name frontend \
+            -p $APP_PORT:$APP_PORT \
+            $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
