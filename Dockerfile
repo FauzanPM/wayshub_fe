@@ -1,14 +1,15 @@
-#Base Image Node 10 alpine
-FROM node:10-alpine
-#Direktori Kerja
-WORKDIR /home/app
-#Install PM2 secara global
-RUN npm install -g pm2
-#Copy semua kode aplikasi
-COPY . .
-#Install dependency
+# Stage 1: Build
+FROM node:10-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+# Install dependency
 RUN npm install
-#Port 
+# Copy source code
+COPY . .
+# Stage 2: Runtime
+FROM node:10-alpine
+WORKDIR /app
+RUN npm install -g pm2
+COPY --from=build /app /app
 EXPOSE 3000
-#Jalankan dengan PM2 Runtime
-CMD ["pm2-runtime", "start", "npm", "--", "start"]
+CMD ["pm2-runtime", "npm", "--", "start"]
